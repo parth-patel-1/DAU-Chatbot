@@ -80,7 +80,7 @@ async def retrieve_relevant_documentation(ctx: RunContext[DAU], user_query: str)
         user_query: The user's question or query
         
     Returns:
-        A formatted string containing the top 5 most relevant documentation chunks
+        A formatted string containing the top 3 most relevant documentation chunks
     """
     try:
         # Get the embedding for the query
@@ -91,7 +91,7 @@ async def retrieve_relevant_documentation(ctx: RunContext[DAU], user_query: str)
             'match_site_pages',
             {
                 'query_embedding': query_embedding,
-                'match_count': 1,
+                'match_count': 3,
                 'filter': {'source': 'dau_data'}
             }
         ).execute()
@@ -127,7 +127,7 @@ async def list_documentation_pages(ctx: RunContext[DAU]) -> List[str]:
     try:
         # Query Supabase for unique URLs where source is dau_data
         result = ctx.deps.supabase.from_('site_pages') \
-            .select('url',distinct=True) \
+            .select('url') \
             .eq('metadata->>source', 'dau_data') \
             .execute()
         
