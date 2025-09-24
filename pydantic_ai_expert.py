@@ -127,7 +127,7 @@ async def list_documentation_pages(ctx: RunContext[DAU]) -> List[str]:
     try:
         # Query Supabase for unique URLs where source is dau_data
         result = ctx.deps.supabase.from_('site_pages') \
-            .select('url') \
+            .select('url',distinct=True) \
             .eq('metadata->>source', 'dau_data') \
             .execute()
         
