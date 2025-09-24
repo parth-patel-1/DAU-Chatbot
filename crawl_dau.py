@@ -10,18 +10,23 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 from dotenv import load_dotenv
-
+import streamlit as st
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 from openai import AsyncOpenAI
 from supabase import create_client, Client
 
-load_dotenv()
+def get_secret(key: str) -> str:
+    try:
+        return st.secrets[key]  # Streamlit secrets if available
+    except Exception:
+        return os.getenv(key, "")
+
 
 # Initialize OpenAI and Supabase clients
-openai_client = AsyncOpenAI(api_key=os.getenv("OPENAPI_API_KEY"),timeout=60.0)
+openai_client = AsyncOpenAI(api_key=get_secret("OPENAI_API_KEY"),timeout=60.0)
 supabase: Client = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_SERVICE_KEY")
+    get_secret("SUPABASE_URL"),
+    get_secret("SUPABASE_SERVICE_KEY")
 )
 
 @dataclass
