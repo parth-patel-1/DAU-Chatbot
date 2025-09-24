@@ -12,13 +12,22 @@ from pydantic_ai.models.openai import OpenAIModel
 from openai import AsyncOpenAI
 from supabase import Client
 from typing import List
+import streamlit as st
 
 load_dotenv()
 
 llm = os.getenv('LLM_MODEL', 'gpt-4o-mini')
 model = OpenAIModel(llm)
+def get_secret(key: str) -> str:
+    try:
+        return st.secrets[key]  # Streamlit secrets if available
+    except Exception:
+        return os.getenv(key, "")
 
-logfire.configure(send_to_logfire='if-token-present')
+OPENAI_API_KEY = get_secret("OPENAI_API_KEY")
+SUPABASE_URL = get_secret("SUPABASE_URL")
+LOGFIRE_TOKEN=get_secret("LOGFIRE_TOKEN")
+logfire.configure(token=LOGFIRE_TOKEN)
 
 @dataclass
 class DAU:
@@ -82,7 +91,7 @@ async def retrieve_relevant_documentation(ctx: RunContext[DAU], user_query: str)
             'match_site_pages',
             {
                 'query_embedding': query_embedding,
-                'match_count': 3,
+                'match_count': 1,
                 'filter': {'source': 'dau_data'}
             }
         ).execute()
